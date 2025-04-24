@@ -13,9 +13,9 @@ export const extractBusinessData = async (businessId: string): Promise<Business 
   let business = allBusinesses.find(b => b.id === businessId);
   
   if (!business) {
-    console.error(`Business with ID ${businessId} not found in mock data`);
-    // If not in mock data, we'll assume this is a real business that needs scraping
-    return null;
+    console.log(`Business with ID ${businessId} not found in mock data, attempting to use as-is`);
+    // For scraped businesses not in mock data, we'll create a business object with just the ID
+    business = { id: businessId, name: "", category: "" };
   }
   
   console.log(`Extracting data for business: ${business.name}`);

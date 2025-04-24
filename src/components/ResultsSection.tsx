@@ -38,13 +38,22 @@ const ResultsSection = ({
   
   useEffect(() => {
     const extractData = async () => {
+      if (businesses.length === 0) return;
+      
       setIsExtracting(true);
+      setExtractedBusinesses([]); // Reset extracted businesses when new search results arrive
+      
       for (const business of businesses) {
         await new Promise(resolve => setTimeout(resolve, 500));
         try {
           const extractedBusiness = await extractBusinessData(business.id);
           if (extractedBusiness) {
-            handleBusinessDataExtracted(extractedBusiness);
+            // Ensure we have the basic business info from the search results
+            const mergedBusiness = {
+              ...business,
+              ...extractedBusiness
+            };
+            handleBusinessDataExtracted(mergedBusiness);
           }
         } catch (error) {
           console.error(`Error extracting data for ${business.name}:`, error);
@@ -53,9 +62,7 @@ const ResultsSection = ({
       setIsExtracting(false);
     };
     
-    if (businesses.length > 0) {
-      extractData();
-    }
+    extractData();
   }, [businesses]);
   
   const handleBusinessDataExtracted = (business: Business) => {

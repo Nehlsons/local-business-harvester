@@ -18,7 +18,7 @@ const NoResults = ({ onRetry }: NoResultsProps) => {
           className="flex items-center gap-2"
         >
           <RefreshCw className="h-4 w-4" />
-          Mit anderer Quelle versuchen
+          Mit Web Scraper erneut versuchen
         </Button>
       )}
     </div>
