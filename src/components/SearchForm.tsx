@@ -7,6 +7,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
 import { BusinessType, SearchParams } from "@/types";
 import { Search } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface SearchFormProps {
   onSearch: (params: SearchParams) => void;
@@ -16,6 +17,7 @@ interface SearchFormProps {
 const SearchForm = ({ onSearch, isSearching }: SearchFormProps) => {
   const [location, setLocation] = useState<string>("");
   const [businessType, setBusinessType] = useState<BusinessType>("both");
+  const [searchDescription, setSearchDescription] = useState<string>("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,6 +26,14 @@ const SearchForm = ({ onSearch, isSearching }: SearchFormProps) => {
       toast.error("Bitte geben Sie eine Stadt oder PLZ ein");
       return;
     }
+    
+    // Set search description for user feedback
+    const locationTypeName = isNaN(Number(location)) ? "Stadt" : "PLZ-Bereich";
+    const businessTypeName = 
+      businessType === "restaurants" ? "Restaurants" : 
+      businessType === "hotels" ? "Hotels" : "Restaurants und Hotels";
+    
+    setSearchDescription(`Ermittle ${businessTypeName} in verschiedenen Postleitzahlen für ${locationTypeName}: ${location}`);
     
     onSearch({
       location: location.trim(),
@@ -37,12 +47,15 @@ const SearchForm = ({ onSearch, isSearching }: SearchFormProps) => {
         <Label htmlFor="location">Stadt oder Postleitzahl</Label>
         <Input 
           id="location"
-          placeholder="z.B. Berlin oder 10115"
+          placeholder="z.B. Berlin oder 10115 oder 47"
           value={location}
           onChange={(e) => setLocation(e.target.value)}
           disabled={isSearching}
           className="w-full"
         />
+        <p className="text-xs text-muted-foreground">
+          Geben Sie einen Städtenamen oder eine vollständige PLZ bzw. PLZ-Präfix ein
+        </p>
       </div>
       
       <div className="space-y-3">
@@ -67,6 +80,14 @@ const SearchForm = ({ onSearch, isSearching }: SearchFormProps) => {
           </div>
         </RadioGroup>
       </div>
+      
+      {searchDescription && isSearching && (
+        <Alert>
+          <AlertDescription>
+            {searchDescription}
+          </AlertDescription>
+        </Alert>
+      )}
       
       <Button 
         type="submit"

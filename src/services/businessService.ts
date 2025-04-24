@@ -12,7 +12,8 @@ const mockRestaurants: Business[] = [
     email: "info@bellaitalia.de",
     phone: "+49 30 12345678",
     address: "Hauptstraße 123, 10115 Berlin",
-    url: "https://bellaitalia-restaurant.de"
+    url: "https://bellaitalia-restaurant.de",
+    postalCode: "10115"
   },
   {
     id: uuidv4(),
@@ -22,7 +23,8 @@ const mockRestaurants: Business[] = [
     email: "kontakt@sushipalace.de",
     phone: "+49 30 87654321",
     address: "Friedrichstraße 45, 10117 Berlin",
-    url: "https://sushipalace.de"
+    url: "https://sushipalace.de",
+    postalCode: "10117"
   },
   {
     id: uuidv4(),
@@ -32,7 +34,8 @@ const mockRestaurants: Business[] = [
     email: "info@brauhaus-markt.de",
     phone: "+49 30 23456789",
     address: "Marktplatz 7, 10178 Berlin",
-    url: "https://brauhaus-markt.de"
+    url: "https://brauhaus-markt.de",
+    postalCode: "10178"
   },
   {
     id: uuidv4(),
@@ -42,7 +45,8 @@ const mockRestaurants: Business[] = [
     email: "bestellung@curry36.de",
     phone: "+49 30 34567890",
     address: "Mehringdamm 36, 10961 Berlin",
-    url: "https://curry36.de"
+    url: "https://curry36.de",
+    postalCode: "10961"
   },
   {
     id: uuidv4(),
@@ -52,7 +56,30 @@ const mockRestaurants: Business[] = [
     email: "hello@vietvillage.de",
     phone: "+49 30 45678901",
     address: "Kantstraße 55, 10625 Berlin",
-    url: "https://vietvillage-restaurant.de"
+    url: "https://vietvillage-restaurant.de",
+    postalCode: "10625"
+  },
+  {
+    id: uuidv4(),
+    name: "Pizza Express",
+    category: "restaurants",
+    owner: "Luigi Romano",
+    email: "info@pizzaexpress.de", 
+    phone: "+49 470 1234567",
+    address: "Hauptstraße 42, 47051 Duisburg",
+    url: "https://pizza-express-duisburg.de",
+    postalCode: "47051"
+  },
+  {
+    id: uuidv4(),
+    name: "Gasthaus zur Mühle",
+    category: "restaurants",
+    owner: "Familie Weber",
+    email: "reservierung@gasthaus-muehle.de",
+    phone: "+49 471 7654321",
+    address: "Mühlenweg 8, 47198 Duisburg",
+    url: "https://gasthaus-muehle.de",
+    postalCode: "47198"
   }
 ];
 
@@ -65,7 +92,8 @@ const mockHotels: Business[] = [
     email: "reception@grandhotelberlin.de",
     phone: "+49 30 56789012",
     address: "Unter den Linden 10, 10117 Berlin",
-    url: "https://grandhotel-berlin.de"
+    url: "https://grandhotel-berlin.de",
+    postalCode: "10117"
   },
   {
     id: uuidv4(),
@@ -75,7 +103,8 @@ const mockHotels: Business[] = [
     email: "info@cityparkhotel.de",
     phone: "+49 30 67890123",
     address: "Tiergarten Allee 22, 10785 Berlin",
-    url: "https://cityparkhotel.de"
+    url: "https://cityparkhotel.de",
+    postalCode: "10785"
   },
   {
     id: uuidv4(),
@@ -85,58 +114,103 @@ const mockHotels: Business[] = [
     email: "stay@boutiquekreuzberg.de",
     phone: "+49 30 78901234",
     address: "Oranienstraße 83, 10969 Berlin",
-    url: "https://boutique-kreuzberg.de"
+    url: "https://boutique-kreuzberg.de",
+    postalCode: "10969"
+  },
+  {
+    id: uuidv4(),
+    name: "Hotel am Hafen",
+    category: "hotels",
+    owner: "Hafen Immobilien GmbH",
+    email: "info@hotelamhafen.de",
+    phone: "+49 470 9876543",
+    address: "Hafenstraße 15, 47119 Duisburg",
+    url: "https://hotel-am-hafen.de",
+    postalCode: "47119"
   }
 ];
 
 // Function to simulate a delay (like an actual API call would take)
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-// Search function that simulates searching for businesses based on location and type
-export const searchBusinesses = async (params: SearchParams): Promise<SearchResults> => {
-  // Simulate network delay
-  await delay(1500);
+// Get postal codes based on location input
+export const getPostalCodesByLocation = async (location: string): Promise<string[]> => {
+  await delay(800);
   
-  const { location, businessType } = params;
+  // For city input
+  if (isNaN(Number(location))) {
+    // If the input is a city name (not a number)
+    const allBusinesses = [...mockRestaurants, ...mockHotels];
+    const cityPostalCodes = allBusinesses
+      .filter(business => business.address.toLowerCase().includes(location.toLowerCase()))
+      .map(business => business.postalCode)
+      .filter((value, index, self) => self.indexOf(value) === index); // Unique values
+    
+    return cityPostalCodes;
+  } 
+  // For postal code prefix input
+  else {
+    const allBusinesses = [...mockRestaurants, ...mockHotels];
+    const postalCodeResults = allBusinesses
+      .filter(business => business.postalCode && business.postalCode.startsWith(location))
+      .map(business => business.postalCode)
+      .filter((value, index, self) => self.indexOf(value) === index); // Unique values
+    
+    return postalCodeResults;
+  }
+};
+
+// Get businesses by postal code and business type
+export const getBusinessesByPostalCode = async (
+  postalCode: string, 
+  businessType: BusinessType
+): Promise<Business[]> => {
+  await delay(500);
   
   let results: Business[] = [];
   
-  // Filter mock data based on business type
   if (businessType === 'restaurants' || businessType === 'both') {
-    // In a real app, we would filter by location too
-    results = [...results, ...mockRestaurants];
+    const filteredRestaurants = mockRestaurants.filter(
+      restaurant => restaurant.postalCode === postalCode
+    );
+    results = [...results, ...filteredRestaurants];
   }
   
   if (businessType === 'hotels' || businessType === 'both') {
-    // In a real app, we would filter by location too
-    results = [...results, ...mockHotels];
+    const filteredHotels = mockHotels.filter(
+      hotel => hotel.postalCode === postalCode
+    );
+    results = [...results, ...filteredHotels];
   }
   
-  // Simulate search based on location
-  // In a real app, this would be done via an API call
-  if (location && location.trim() !== '') {
-    // Simple simulation - in real life, we'd use a proper location-based search
-    // Just randomly remove some results to simulate location filtering
-    results = results.filter(() => Math.random() > 0.3);
+  return results;
+};
+
+// Search function that simulates searching for businesses based on location and type
+export const searchBusinesses = async (params: SearchParams): Promise<SearchResults> => {
+  // Simulate network delay
+  await delay(1000);
+  
+  const { location, businessType } = params;
+  
+  // Get all relevant postal codes first
+  const postalCodes = await getPostalCodesByLocation(location);
+  
+  // Get businesses for each postal code
+  const postalCodeBreakdown: {[key: string]: Business[]} = {};
+  let allBusinesses: Business[] = [];
+  
+  for (const code of postalCodes) {
+    const businesses = await getBusinessesByPostalCode(code, businessType);
+    postalCodeBreakdown[code] = businesses;
+    allBusinesses = [...allBusinesses, ...businesses];
   }
   
   return {
-    businesses: results,
-    totalCount: results.length
+    businesses: allBusinesses,
+    totalCount: allBusinesses.length,
+    postalCodeBreakdown
   };
-};
-
-// Function to simulate extracting detailed business data
-export const extractBusinessData = async (businessId: string): Promise<Business | null> => {
-  await delay(800);
-  
-  // Find the business in our mock data
-  const business = [...mockRestaurants, ...mockHotels].find(b => b.id === businessId);
-  
-  if (!business) return null;
-  
-  // In a real app, this would make an HTTP request to scrape the business website
-  return business;
 };
 
 // Function to export data to Excel (in a real app)

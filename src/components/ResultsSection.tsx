@@ -1,26 +1,29 @@
 
 import { Business } from "@/types";
 import { Button } from "@/components/ui/button";
-import { FileSpreadsheet, Loader2, Mail, Phone } from "lucide-react";
+import { FileSpreadsheet, Loader2, Mail, Phone, MapPin, ChevronDown, ChevronUp } from "lucide-react";
 import { exportToExcel } from "@/services/businessService";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
 import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface ResultsSectionProps {
   businesses: Business[];
   isLoading: boolean;
+  postalCodeBreakdown?: {[key: string]: Business[]};
 }
 
-const ResultsSection = ({ businesses, isLoading }: ResultsSectionProps) => {
+const ResultsSection = ({ businesses, isLoading, postalCodeBreakdown }: ResultsSectionProps) => {
   const [extractedBusinesses, setExtractedBusinesses] = useState<Business[]>([]);
   const [isExporting, setIsExporting] = useState(false);
   const [filters, setFilters] = useState({
     hasEmail: false,
     hasPhone: false
   });
+  const [expandedPostalCodes, setExpandedPostalCodes] = useState<{[key: string]: boolean}>({});
   
   // Automatische Extraktion beim Laden der Geschäfte
   useEffect(() => {
@@ -78,6 +81,13 @@ const ResultsSection = ({ businesses, isLoading }: ResultsSectionProps) => {
     return true;
   });
 
+  const togglePostalCode = (postalCode: string) => {
+    setExpandedPostalCodes(prev => ({
+      ...prev,
+      [postalCode]: !prev[postalCode]
+    }));
+  };
+
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-10 space-y-4">
@@ -117,6 +127,58 @@ const ResultsSection = ({ businesses, isLoading }: ResultsSectionProps) => {
             <span>{extractionProgress}%</span>
           </div>
           <Progress value={extractionProgress} className="h-2" />
+        </div>
+      )}
+
+      {postalCodeBreakdown && Object.keys(postalCodeBreakdown).length > 0 && (
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Aufschlüsselung nach PLZ</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {Object.entries(postalCodeBreakdown).map(([postalCode, plzBusinesses]) => (
+              <Card key={postalCode} className="overflow-hidden">
+                <CardHeader 
+                  className="cursor-pointer bg-slate-50 py-2 hover:bg-slate-100"
+                  onClick={() => togglePostalCode(postalCode)}
+                >
+                  <CardTitle className="flex justify-between items-center text-base">
+                    <span className="flex items-center">
+                      <MapPin className="h-4 w-4 mr-2" />
+                      PLZ {postalCode}
+                    </span>
+                    <span className="flex items-center">
+                      {plzBusinesses.length} Treffer
+                      {expandedPostalCodes[postalCode] ? 
+                        <ChevronUp className="h-4 w-4 ml-1" /> : 
+                        <ChevronDown className="h-4 w-4 ml-1" />
+                      }
+                    </span>
+                  </CardTitle>
+                </CardHeader>
+                {expandedPostalCodes[postalCode] && (
+                  <CardContent className="p-0">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Name</TableHead>
+                          <TableHead>Kategorie</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {plzBusinesses.map(business => (
+                          <TableRow key={business.id}>
+                            <TableCell className="py-2">{business.name}</TableCell>
+                            <TableCell className="py-2">
+                              {business.category === 'restaurants' ? 'Restaurant' : 'Hotel'}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                )}
+              </Card>
+            ))}
+          </div>
         </div>
       )}
 

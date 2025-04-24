@@ -10,6 +10,7 @@ export interface Business {
   phone?: string;
   address?: string;
   url?: string;
+  postalCode?: string;
 }
 
 export interface SearchParams {
@@ -20,4 +21,6 @@ export interface SearchParams {
 export interface SearchResults {
   businesses: Business[];
   totalCount: number;
+  postalCodeBreakdown?: {[key: string]: Business[]};
 }
+

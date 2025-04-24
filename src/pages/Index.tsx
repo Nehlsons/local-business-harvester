@@ -71,7 +71,8 @@ const Index = () => {
                   {searchResults && (
                     <ResultsSection 
                       businesses={searchResults.businesses} 
-                      isLoading={isSearching} 
+                      isLoading={isSearching}
+                      postalCodeBreakdown={searchResults.postalCodeBreakdown}
                     />
                   )}
                 </div>
