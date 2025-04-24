@@ -40,7 +40,7 @@ const mockRestaurants: Business[] = [
     id: uuidv4(),
     name: "Curry 36",
     category: "restaurants",
-    owner: "Familie Schmidt",
+    owner: "Michael Schmidt",
     email: "bestellung@curry36.de",
     phone: "+49 30 34567890",
     address: "Mehringdamm 36, 10961 Berlin",
@@ -73,7 +73,7 @@ const mockRestaurants: Business[] = [
     id: uuidv4(),
     name: "Gasthaus zur Mühle",
     category: "restaurants",
-    owner: "Familie Weber",
+    owner: "Franz Weber",
     email: "reservierung@gasthaus-muehle.de",
     phone: "+49 471 7654321",
     address: "Mühlenweg 8, 47198 Duisburg",
@@ -87,7 +87,7 @@ const mockHotels: Business[] = [
     id: uuidv4(),
     name: "Grand Hotel Berlin",
     category: "hotels",
-    owner: "Berlin Hospitality GmbH",
+    owner: "Klaus Schmidt",
     email: "reception@grandhotelberlin.de",
     phone: "+49 30 56789012",
     address: "Unter den Linden 10, 10117 Berlin",
@@ -98,7 +98,7 @@ const mockHotels: Business[] = [
     id: uuidv4(),
     name: "City Park Hotel",
     category: "hotels",
-    owner: "Park Hotel Group",
+    owner: "Thomas Meyer",
     email: "info@cityparkhotel.de",
     phone: "+49 30 67890123",
     address: "Tiergarten Allee 22, 10785 Berlin",
@@ -109,7 +109,7 @@ const mockHotels: Business[] = [
     id: uuidv4(),
     name: "Boutique Hotel Kreuzberg",
     category: "hotels",
-    owner: "Kreuzberg Lifestyle Hotels",
+    owner: "Sarah Wagner",
     email: "stay@boutiquekreuzberg.de",
     phone: "+49 30 78901234",
     address: "Oranienstraße 83, 10969 Berlin",
@@ -120,7 +120,7 @@ const mockHotels: Business[] = [
     id: uuidv4(),
     name: "Hotel am Hafen",
     category: "hotels",
-    owner: "Hafen Immobilien GmbH",
+    owner: "Peter Fischer",
     email: "info@hotelamhafen.de",
     phone: "+49 470 9876543",
     address: "Hafenstraße 15, 47119 Duisburg",
@@ -234,10 +234,12 @@ export const extractBusinessData = async (businessId: string): Promise<Business 
     return null;
   }
   
-  // In a real app, this would get more detailed information from an API
-  console.log(`Extracting data for business: ${business.name}`);
+  // Validate that owner is not a company (GmbH)
+  if (business.owner.includes('GmbH') || business.owner.includes('gmbh')) {
+    console.error(`Invalid owner format for business: ${business.name}`);
+    return null;
+  }
   
-  // Simply return the existing business data for the mock
-  // In a real app, this would return enriched data from web scraping/crawling
+  console.log(`Extracting data for business: ${business.name}`);
   return business;
 };

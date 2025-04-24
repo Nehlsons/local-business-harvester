@@ -74,7 +74,7 @@ const ExtractedDataTable = ({ businesses }: ExtractedDataTableProps) => {
                 <SortButton field="category" />
               </TableHead>
               <TableHead className="flex items-center">
-                Inhaber/Geschäftsführer
+                Inhaber oder Geschäftsführer
                 <SortButton field="owner" />
               </TableHead>
               <TableHead className="flex items-center">
@@ -112,3 +112,4 @@ const ExtractedDataTable = ({ businesses }: ExtractedDataTableProps) => {
 };
 
 export default ExtractedDataTable;
+

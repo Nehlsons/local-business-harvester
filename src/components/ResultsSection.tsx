@@ -1,4 +1,3 @@
-
 import { Business } from "@/types";
 import { Button } from "@/components/ui/button";
 import { FileSpreadsheet, Loader2, Mail, Phone, MapPin, ChevronDown, ChevronUp } from "lucide-react";
@@ -25,11 +24,9 @@ const ResultsSection = ({ businesses, isLoading, postalCodeBreakdown }: ResultsS
   });
   const [expandedPostalCodes, setExpandedPostalCodes] = useState<{[key: string]: boolean}>({});
   
-  // Automatische Extraktion beim Laden der Geschäfte
   useEffect(() => {
     const extractData = async () => {
       for (const business of businesses) {
-        // Simuliere Extraktion mit einer Verzögerung
         await new Promise(resolve => setTimeout(resolve, 500));
         handleBusinessDataExtracted(business);
       }
@@ -218,7 +215,7 @@ const ResultsSection = ({ businesses, isLoading, postalCodeBreakdown }: ResultsS
             <TableRow>
               <TableHead>Name</TableHead>
               <TableHead>Kategorie</TableHead>
-              <TableHead>Inhaber</TableHead>
+              <TableHead>Inhaber oder Geschäftsführer</TableHead>
               <TableHead>E-Mail</TableHead>
               <TableHead>Telefon</TableHead>
               <TableHead>Adresse</TableHead>
