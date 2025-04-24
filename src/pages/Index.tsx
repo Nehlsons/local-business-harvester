@@ -16,9 +16,12 @@ const Index = () => {
   const [searchResults, setSearchResults] = useState<SearchResults | null>(null);
   const [extractedBusinesses, setExtractedBusinesses] = useState<Business[]>([]);
   const [activeTab, setActiveTab] = useState("search");
+  const [currentSearchParams, setCurrentSearchParams] = useState<SearchParams | null>(null);
   
   const handleSearch = async (params: SearchParams) => {
     setIsSearching(true);
+    setCurrentSearchParams(params);
+    
     try {
       const results = await searchBusinesses(params);
       setSearchResults(results);
@@ -73,6 +76,8 @@ const Index = () => {
                       businesses={searchResults.businesses} 
                       isLoading={isSearching}
                       postalCodeBreakdown={searchResults.postalCodeBreakdown}
+                      onSearch={handleSearch}
+                      searchParams={currentSearchParams}
                     />
                   )}
                 </div>
@@ -124,6 +129,16 @@ const Index = () => {
                       <p className="text-gray-600">
                         Die exportierten Daten können für Marktanalysen, Lead-Generierung oder 
                         Marketing-Kampagnen verwendet werden, unter Beachtung der rechtlichen Bestimmungen.
+                      </p>
+                    </div>
+
+                    <div>
+                      <h3 className="text-lg font-semibold">Wie funktioniert der Web Scraper?</h3>
+                      <p className="text-gray-600">
+                        Der integrierte Web Scraper sucht nach Geschäftswebseiten und extrahiert 
+                        strukturiert Kontaktdaten wie E-Mail-Adressen, Telefonnummern und 
+                        Inhaberinformationen. In einer Produktivumgebung würde dieser auf einem 
+                        Server laufen, um CORS-Beschränkungen zu umgehen.
                       </p>
                     </div>
                   </div>

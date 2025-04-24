@@ -1,5 +1,5 @@
 
-import { SearchParams, SearchResults } from "@/types";
+import { SearchParams, SearchResults, Business } from "@/types";
 import { getPostalCodesByLocation, getBusinessesByPostalCode } from "./postalCodeService";
 
 // Main search function that uses the other services
