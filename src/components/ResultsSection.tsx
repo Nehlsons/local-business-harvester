@@ -1,13 +1,15 @@
+
 import { Business } from "@/types";
-import { Button } from "@/components/ui/button";
-import { FileSpreadsheet, Loader2, Mail, Phone, MapPin, ChevronDown, ChevronUp } from "lucide-react";
 import { exportToExcel } from "@/services/businessService";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
-import { Progress } from "@/components/ui/progress";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import LoadingState from "./results/LoadingState";
+import NoResults from "./results/NoResults";
+import ExtractionProgress from "./results/ExtractionProgress";
+import PostalCodeBreakdown from "./results/PostalCodeBreakdown";
+import ResultsFilters from "./results/ResultsFilters";
+import ResultsHeader from "./results/ResultsHeader";
+import ResultsTable from "./results/ResultsTable";
 
 interface ResultsSectionProps {
   businesses: Business[];
@@ -22,7 +24,6 @@ const ResultsSection = ({ businesses, isLoading, postalCodeBreakdown }: ResultsS
     hasEmail: false,
     hasPhone: false
   });
-  const [expandedPostalCodes, setExpandedPostalCodes] = useState<{[key: string]: boolean}>({});
   
   useEffect(() => {
     const extractData = async () => {
@@ -78,165 +79,40 @@ const ResultsSection = ({ businesses, isLoading, postalCodeBreakdown }: ResultsS
     return true;
   });
 
-  const togglePostalCode = (postalCode: string) => {
-    setExpandedPostalCodes(prev => ({
-      ...prev,
-      [postalCode]: !prev[postalCode]
-    }));
-  };
-
   if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-10 space-y-4">
-        <Loader2 className="h-10 w-10 text-harvester-blue animate-spin" />
-        <p className="text-muted-foreground">Suche nach Geschäften...</p>
-      </div>
-    );
+    return <LoadingState />;
   }
 
   if (businesses.length === 0) {
-    return (
-      <div className="text-center py-10">
-        <p className="text-muted-foreground">Keine Ergebnisse gefunden. Bitte versuchen Sie eine andere Suche.</p>
-      </div>
-    );
+    return <NoResults />;
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold">Ergebnisse ({filteredBusinesses.length})</h2>
-        <Button 
-          variant="outline" 
-          className="flex items-center gap-2"
-          onClick={handleExportToExcel}
-          disabled={filteredBusinesses.length === 0 || isExporting}
-        >
-          <FileSpreadsheet className="h-4 w-4" />
-          {isExporting ? "Exportiere..." : "Nach Excel exportieren"}
-        </Button>
-      </div>
+      <ResultsHeader 
+        resultCount={filteredBusinesses.length}
+        onExport={handleExportToExcel}
+        isExporting={isExporting}
+      />
       
       {extractedBusinesses.length > 0 && (
-        <div className="space-y-2">
-          <div className="flex justify-between text-sm">
-            <span>{extractedBusinesses.length} von {businesses.length} extrahiert</span>
-            <span>{extractionProgress}%</span>
-          </div>
-          <Progress value={extractionProgress} className="h-2" />
-        </div>
+        <ExtractionProgress 
+          totalBusinesses={businesses.length}
+          extractedCount={extractedBusinesses.length}
+          progress={extractionProgress}
+        />
       )}
 
       {postalCodeBreakdown && Object.keys(postalCodeBreakdown).length > 0 && (
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Aufschlüsselung nach PLZ</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {Object.entries(postalCodeBreakdown).map(([postalCode, plzBusinesses]) => (
-              <Card key={postalCode} className="overflow-hidden">
-                <CardHeader 
-                  className="cursor-pointer bg-slate-50 py-2 hover:bg-slate-100"
-                  onClick={() => togglePostalCode(postalCode)}
-                >
-                  <CardTitle className="flex justify-between items-center text-base">
-                    <span className="flex items-center">
-                      <MapPin className="h-4 w-4 mr-2" />
-                      PLZ {postalCode}
-                    </span>
-                    <span className="flex items-center">
-                      {plzBusinesses.length} Treffer
-                      {expandedPostalCodes[postalCode] ? 
-                        <ChevronUp className="h-4 w-4 ml-1" /> : 
-                        <ChevronDown className="h-4 w-4 ml-1" />
-                      }
-                    </span>
-                  </CardTitle>
-                </CardHeader>
-                {expandedPostalCodes[postalCode] && (
-                  <CardContent className="p-0">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Name</TableHead>
-                          <TableHead>Kategorie</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {plzBusinesses.map(business => (
-                          <TableRow key={business.id}>
-                            <TableCell className="py-2">{business.name}</TableCell>
-                            <TableCell className="py-2">
-                              {business.category === 'restaurants' ? 'Restaurant' : 'Hotel'}
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </CardContent>
-                )}
-              </Card>
-            ))}
-          </div>
-        </div>
+        <PostalCodeBreakdown postalCodeBreakdown={postalCodeBreakdown} />
       )}
 
-      <div className="flex gap-4 items-center">
-        <div className="flex items-center gap-2">
-          <Checkbox 
-            id="hasEmail" 
-            checked={filters.hasEmail}
-            onCheckedChange={(checked) => 
-              setFilters(prev => ({ ...prev, hasEmail: checked as boolean }))
-            }
-          />
-          <label htmlFor="hasEmail" className="text-sm flex items-center gap-1">
-            <Mail className="h-4 w-4" />
-            Hat E-Mail
-          </label>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Checkbox 
-            id="hasPhone" 
-            checked={filters.hasPhone}
-            onCheckedChange={(checked) => 
-              setFilters(prev => ({ ...prev, hasPhone: checked as boolean }))
-            }
-          />
-          <label htmlFor="hasPhone" className="text-sm flex items-center gap-1">
-            <Phone className="h-4 w-4" />
-            Hat Telefonnummer
-          </label>
-        </div>
-      </div>
+      <ResultsFilters 
+        filters={filters}
+        onFiltersChange={setFilters}
+      />
       
-      <div className="border rounded-md">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Kategorie</TableHead>
-              <TableHead>Inhaber oder Geschäftsführer</TableHead>
-              <TableHead>E-Mail</TableHead>
-              <TableHead>Telefon</TableHead>
-              <TableHead>Adresse</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredBusinesses.map((business) => (
-              <TableRow key={business.id}>
-                <TableCell className="font-medium">{business.name}</TableCell>
-                <TableCell>
-                  {business.category === 'restaurants' ? 'Restaurant' : 'Hotel'}
-                </TableCell>
-                <TableCell>{business.owner || 'N/A'}</TableCell>
-                <TableCell>{business.email || 'N/A'}</TableCell>
-                <TableCell>{business.phone || 'N/A'}</TableCell>
-                <TableCell>{business.address || 'N/A'}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+      <ResultsTable businesses={filteredBusinesses} />
     </div>
   );
 };
