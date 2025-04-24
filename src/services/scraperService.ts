@@ -2,28 +2,30 @@
 import { Business, BusinessType } from "@/types";
 import { v4 as uuidv4 } from 'uuid';
 import { delay } from "@/utils/apiUtils";
+import { FirecrawlService } from '@/utils/FirecrawlService';
+import { toast } from "sonner";
 
-// Function to scrape business websites for contact information
 export const scrapeBusinessWebsite = async (url: string): Promise<Partial<Business>> => {
   try {
     console.log(`Scraping website: ${url}`);
     
-    // In a real implementation, we would use a server-side solution due to CORS restrictions
-    // This is a simulation for demonstration purposes
-    await delay(1500); // Simulate network request
+    const result = await FirecrawlService.crawlWebsite(url);
     
-    // Simulate extracting data from website HTML
+    if (!result.success) {
+      toast.error(`Failed to scrape ${url}: ${result.error}`);
+      return {};
+    }
+    
+    const data = result.data;
     const extractedData: Partial<Business> = {};
     
-    // Generate some realistic data based on URL patterns
-    if (url.includes('restaurant') || url.includes('ristorante')) {
-      extractedData.email = `info@${url.replace('https://', '').split('/')[0]}`;
-      extractedData.phone = `+49 ${Math.floor(Math.random() * 900) + 100} ${Math.floor(Math.random() * 9000000) + 1000000}`;
-      extractedData.owner = generateRandomName();
-    } else if (url.includes('hotel')) {
-      extractedData.email = `reservations@${url.replace('https://', '').split('/')[0]}`;
-      extractedData.phone = `+49 ${Math.floor(Math.random() * 900) + 100} ${Math.floor(Math.random() * 9000000) + 1000000}`;
-      extractedData.owner = generateRandomName();
+    // Extract relevant business information from the crawled data
+    if (data) {
+      // Map crawled data to business fields
+      // This is a simple example - you would need to adjust based on your needs
+      if (data.email) extractedData.email = data.email;
+      if (data.phone) extractedData.phone = data.phone;
+      if (data.owner) extractedData.owner = data.owner;
     }
     
     console.log("Extracted data:", extractedData);

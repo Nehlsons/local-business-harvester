@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,6 +9,7 @@ import ResultsSection from "@/components/ResultsSection";
 import LegalNotice from "@/components/LegalNotice";
 import ExtractedDataTable from "@/components/ExtractedDataTable";
 import HowItWorks from "@/components/HowItWorks";
+import ApiKeyForm from "@/components/ApiKeyForm";
 
 const Index = () => {
   const [isSearching, setIsSearching] = useState(false);
@@ -34,7 +34,6 @@ const Index = () => {
   
   const handleDataExtracted = (business: Business) => {
     setExtractedBusinesses(prev => {
-      // Check if business already exists
       if (prev.some(b => b.id === business.id)) {
         return prev;
       }
@@ -59,8 +58,9 @@ const Index = () => {
           </div>
           
           <Tabs defaultValue="search" value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="search">Suche & Extraktion</TabsTrigger>
+              <TabsTrigger value="settings">Einstellungen</TabsTrigger>
               <TabsTrigger value="help">Hilfe & Anleitung</TabsTrigger>
             </TabsList>
             
@@ -88,6 +88,15 @@ const Index = () => {
               )}
               
               <LegalNotice />
+            </TabsContent>
+            
+            <TabsContent value="settings">
+              <Card className="p-6">
+                <h2 className="text-2xl font-bold mb-6">API Einstellungen</h2>
+                <div className="max-w-md">
+                  <ApiKeyForm />
+                </div>
+              </Card>
             </TabsContent>
             
             <TabsContent value="help">
