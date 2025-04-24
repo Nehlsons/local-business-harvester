@@ -1,4 +1,3 @@
-
 import { Business, BusinessType, SearchParams, SearchResults } from "@/types";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -221,4 +220,24 @@ export const exportToExcel = async (businesses: Business[]): Promise<boolean> =>
   console.log('Exporting businesses to Excel:', businesses);
   
   return true;
+};
+
+// Function to extract detailed data for a business
+export const extractBusinessData = async (businessId: string): Promise<Business | null> => {
+  await delay(1000);
+  
+  const allBusinesses = [...mockRestaurants, ...mockHotels];
+  const business = allBusinesses.find(b => b.id === businessId);
+  
+  if (!business) {
+    console.error(`Business with ID ${businessId} not found`);
+    return null;
+  }
+  
+  // In a real app, this would get more detailed information from an API
+  console.log(`Extracting data for business: ${business.name}`);
+  
+  // Simply return the existing business data for the mock
+  // In a real app, this would return enriched data from web scraping/crawling
+  return business;
 };
